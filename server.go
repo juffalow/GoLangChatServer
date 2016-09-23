@@ -10,6 +10,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 	"github.com/kataras/iris"
 )
 
@@ -22,7 +23,8 @@ func (client *Client) run() {
     client.wsc.Join("global")
 
     client.wsc.On("chat", func(message string) {
-        client.wsc.To("global").Emit("chat", "From: " + client.username + ": " + message)
+		t := time.Now()
+        client.wsc.To("global").Emit("chat", "[ " + t.Format("3:04:05") + " ] " + client.username + ": " + message)
     })
 
 	client.wsc.On("login", func(message string) {
