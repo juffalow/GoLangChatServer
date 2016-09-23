@@ -13,21 +13,16 @@ import (
 	"github.com/kataras/iris"
 )
 
-type clientPage struct {
-	Title string
-	Host  string
-}
-
 type Client struct {
     username string
     wsc iris.WebsocketConnection
 }
 
 func (client *Client) run() {
-    client.wsc.Join("room1")
+    client.wsc.Join("global")
 
     client.wsc.On("chat", func(message string) {
-        client.wsc.To("room1").Emit("chat", "From: " + client.username + ": " + message)
+        client.wsc.To("global").Emit("chat", "From: " + client.username + ": " + message)
     })
 
 	client.wsc.On("login", func(message string) {
@@ -49,13 +44,7 @@ func NewClient(c iris.WebsocketConnection) *Client {
 }
 
 func main() {
-	iris.Static("/js", "./static/js", 1)
-
-	iris.Get("/", func(ctx *iris.Context) {
-		ctx.Render("client.html", clientPage{"Client Page", ctx.HostString()})
-	})
-
-	iris.Config.Websocket.Endpoint = "/my_endpoint"
+	iris.Config.Websocket.Endpoint = "/chatapp"
 
 	iris.Websocket.OnConnection(func(c iris.WebsocketConnection) {
         NewClient(c)
